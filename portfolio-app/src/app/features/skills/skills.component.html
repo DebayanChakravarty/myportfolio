@@ -1,0 +1,48 @@
+<div class="max-w-6xl mx-auto">
+    <div class="text-center mb-16" appIoAnimate>
+      <h2 class="text-5xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+        Technical Skills
+      </h2>
+      <div class="w-24 h-1 bg-gradient-to-r from-blue-400 to-purple-400 mx-auto"></div>
+    </div>
+  
+    <!-- Highlights (cards like your design) -->
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 mb-16">
+      <div
+        *ngFor="let h of highlights"
+        class="glass-effect rounded-xl p-4 text-center border border-white/20 hover:scale-110 transition group"
+        appIoAnimate>
+        <div class="text-3xl mb-2 group-hover:animate-pulse">{{ h.emoji }}</div>
+        <div class="text-sm font-semibold">{{ h.label }}</div>
+      </div>
+    </div>
+  
+    <!-- Detailed proficiency -->
+    <div class="grid md:grid-cols-2 gap-8">
+      <div *ngFor="let sec of sections" class="glass-effect rounded-2xl p-6 border border-white/20" appIoAnimate>
+        <h3 class="text-xl font-semibold mb-4">
+          <span class="bg-gradient-to-r {{sec.accent}} bg-clip-text text-transparent">{{ sec.title }}</span>
+        </h3>
+  
+        <ul class="space-y-4">
+          <li *ngFor="let s of sec.skills">
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-gray-200 text-sm">{{ s.name }}</span>
+              <span class="text-gray-400 text-xs">{{ s.level }}%</span>
+            </div>
+            <div class="w-full h-2 bg-white/10 rounded">
+              <div
+                class="h-full rounded bg-gradient-to-r {{sec.accent}}"
+                role="progressbar"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                [attr.aria-valuenow]="s.level"
+                [style.width.%]="s.level">
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  

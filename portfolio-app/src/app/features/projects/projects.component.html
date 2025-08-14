@@ -1,0 +1,25 @@
+<div class="max-w-7xl mx-auto">
+  <div class="text-center mb-16" appIoAnimate>
+    <h2 class="text-5xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">My Work</h2>
+    <div class="w-24 h-1 bg-gradient-to-r from-blue-400 to-purple-400 mx-auto mb-8"></div>
+    <p class="text-xl text-gray-300 max-w-2xl mx-auto">
+      Explore my latest projects and proof of concepts that showcase my technical skills and creative problem-solving abilities.
+    </p>
+  </div>
+
+  <!-- <div class="masonry-grid" appMasonryGrid [columnMin]="280" [rowHeight]="8" [gap]="24">
+    <app-project-card
+      *ngFor="let p of projects"
+      [project]="p"
+      appMasonryItem>
+    </app-project-card>
+  </div> -->
+
+  <app-project-card></app-project-card>
+  
+  <div class="text-center mt-12">
+    <button class="px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full font-semibold hover:shadow-2xl hover:scale-105 transition neon-glow">
+      Load More Projects
+    </button>
+  </div>
+</div>

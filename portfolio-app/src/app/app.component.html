@@ -1,0 +1,31 @@
+<a href="#home"
+   class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 bg-blue-600 text-white px-3 py-2 rounded z-[100]">
+  Skip to content
+</a>
+
+<!-- Background blobs -->
+<div class="fixed inset-0 z-0 pointer-events-none">
+  <div class="absolute inset-0 bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900"></div>
+  <div appParallax class="parallax absolute top-20 left-20">
+    <div class="w-72 h-72 bg-blue-500 rounded-full mix-blend-multiply blur-xl opacity-20 floating"></div>
+  </div>
+  <div appParallax class="parallax absolute top-40 right-20">
+    <div class="w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply blur-xl opacity-20 floating"></div>
+  </div>
+  <div appParallax class="parallax absolute bottom-20 left-1/2">
+    <div class="w-72 h-72 bg-pink-500 rounded-full mix-blend-multiply blur-xl opacity-20 floating"></div>
+  </div>
+</div>
+
+<app-header></app-header>
+
+<main class="relative z-10">
+  <section id="home"><app-hero></app-hero></section>
+  <section id="about" class="py-20 px-6"><app-about></app-about></section>
+  <section id="work" class="py-20 px-6"><app-experience></app-experience></section>
+  <section id="skills" class="py-20 px-6"><app-skills></app-skills></section>
+  <section id="projects" class="py-20 px-6"><app-projects></app-projects></section>
+  <section id="contact" class="py-20 px-6"><app-contact></app-contact></section>
+</main>
+
+<app-footer></app-footer>

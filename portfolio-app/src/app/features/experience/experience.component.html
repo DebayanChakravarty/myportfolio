@@ -1,0 +1,75 @@
+<div class="max-w-6xl mx-auto">
+  <div class="text-center mb-16" appIoAnimate>
+    <h2 class="text-5xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+      Experience
+    </h2>
+    <div class="w-24 h-1 bg-gradient-to-r from-blue-400 to-purple-400 mx-auto"></div>
+  </div>
+
+  <!-- Move the line to the left on mobile; add left padding so cards don't hit the line -->
+  <div class="relative timeline-line pl-8 md:pl-0">
+    <div class="space-y-12">
+
+      <!-- Row 1 -->
+      <div class="flex flex-col md:flex-row md:items-center" appIoAnimate>
+        <!-- content left (mobile-first) -->
+        <div class="md:w-1/2 md:pr-8 mb-8 md:mb-0 relative">
+          <!-- small dot on mobile -->
+          <div class="md:hidden absolute -left-1 top-6 w-3 h-3 bg-blue-400 rounded-full"></div>
+
+          <div class="glass-effect rounded-2xl p-8 border border-white/20 hover:scale-105 transition">
+            <div class="flex items-center mb-4">
+              <div class="hidden md:block w-4 h-4 bg-blue-400 rounded-full mr-4"></div>
+              <span class="text-blue-400 font-semibold">2022 - Present</span>
+            </div>
+            <h3 class="text-2xl font-bold mb-2">Senior Software Engineer</h3>
+            <p class="text-purple-400 mb-4">Tech Innovation Corp</p>
+            <ul class="text-gray-300 space-y-2">
+              <li>• Led development of microservices architecture</li>
+              <li>• Improved system performance by 40%</li>
+              <li>• Mentored 5+ junior developers</li>
+              <li>• Implemented CI/CD pipelines</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- center dot for desktop -->
+        <div class="hidden md:block w-8 h-8 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full relative z-10"></div>
+
+        <!-- empty right column (HIDE on mobile) -->
+        <div class="hidden md:block md:w-1/2 md:pl-8"></div>
+      </div>
+
+      <!-- Row 2 -->
+      <div class="flex flex-col md:flex-row md:items-center" appIoAnimate>
+        <!-- empty left column (HIDE on mobile) -->
+        <div class="hidden md:block md:w-1/2 md:pr-8"></div>
+
+        <!-- center dot for desktop -->
+        <div class="hidden md:block w-8 h-8 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full relative z-10"></div>
+
+        <!-- content right -->
+        <div class="md:w-1/2 md:pl-8 mb-8 md:mb-0 relative">
+          <!-- small dot on mobile -->
+          <div class="md:hidden absolute -left-1 top-6 w-3 h-3 bg-purple-400 rounded-full"></div>
+
+          <div class="glass-effect rounded-2xl p-8 border border-white/20 hover:scale-105 transition">
+            <div class="flex items-center mb-4">
+              <div class="hidden md:block w-4 h-4 bg-purple-400 rounded-full mr-4"></div>
+              <span class="text-purple-400 font-semibold">2021 - 2022</span>
+            </div>
+            <h3 class="text-2xl font-bold mb-2">Software Developer</h3>
+            <p class="text-blue-400 mb-4">Digital Solutions Ltd</p>
+            <ul class="text-gray-300 space-y-2">
+              <li>• Developed full-stack web applications</li>
+              <li>• Collaborated with UX/UI designers</li>
+              <li>• Implemented responsive designs</li>
+              <li>• Participated in agile development</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

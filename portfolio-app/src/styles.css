@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* --- Custom utilities & animations --- */
+.glass-effect { backdrop-filter: blur(10px); background: rgba(255, 255, 255, 0.08); }
+.neon-glow { box-shadow: 0 0 20px rgba(59, 130, 246, 0.5); }
+
+.floating { animation: float 6s ease-in-out infinite; }
+@keyframes float { 0%,100%{transform: translateY(0)} 50%{transform: translateY(-20px)} }
+
+.slide-in { opacity: 0; transform: translateX(-50px); animation: slideIn .8s ease-out forwards; animation-play-state: paused; }
+@keyframes slideIn { to { opacity: 1; transform: translateX(0); } }
+
+/* .typewriter { overflow: hidden; border-right: 3px solid #3b82f6; white-space: nowrap; animation: typing 3s steps(30), blink .5s step-end infinite alternate; }
+@keyframes typing { from { width: 0; } }
+@keyframes blink { 50% { border-color: transparent; } } */
+
+.hexagon { clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); }
+.timeline-line { position: relative; }
+.timeline-line::before { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, #3b82f6, #8b5cf6); transform: translateX(-50%); }
+
+.masonry { column-count: 1; column-gap: 1.5rem; }
+@media (min-width: 768px) { .masonry { column-count: 2; } }
+@media (min-width: 1024px) { .masonry { column-count: 3; } }
+@media (min-width: 1280px) { .masonry { column-count: 4; } }
+.masonry-item { break-inside: avoid; margin-bottom: 1.5rem; }
+
+
+:focus-visible { outline: 3px solid #60a5fa; outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) {
+  .floating, .slide-in, .typewriter { animation: none !important; }
+  .typewriter { border-right: 0; }
+}
+
+/* Make the timeline line left-aligned on small screens */
+@media (max-width: 767.98px) {
+  .timeline-line::before {
+    left: 1rem;    /* move line to the left edge */
+    transform: none;
+  }
+}
+
