@@ -43,9 +43,9 @@ jobs:
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           protocol: ftp                 # change to ftp or ftps-legacy if needed
-          server:   ${{ secrets.DEPLOY_SERVER }}
-          username: ${{ secrets.DEPLOY_USERNAME }}
-          password: ${{ secrets.DEPLOY_PASSWORD }}
+          server:   ${{ secrets.SFTP_SERVER }}
+          username: ${{ secrets.SFTP_USERNAME }}
+          password: ${{ secrets.SFTP_PASSWORD }}
           local-dir:  dist/myportfolio/  # <-- hardcoded build output
           server-dir: /public_html/      # <-- hardcoded Hostinger document root
           dangerous-clean-slate: true
