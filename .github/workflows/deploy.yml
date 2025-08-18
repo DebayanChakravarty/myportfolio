@@ -1,46 +1,35 @@
-name: deploy-angular-to-hostinger-sftp
+name: deploy-angular-to-hostinger-ftp
 
 on:
   push:
-    branches: [ main ]        # change if your default branch is different
+    branches: [ main ]
   workflow_dispatch:
 
 permissions:
   contents: read
 
-concurrency:
-  group: hostinger-sftp-deploy
-  cancel-in-progress: true
-
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
 
       - name: Install dependencies
         run: |
-          if [ -f package-lock.json ]; then
-            npm ci
-          else
-            npm install
-          fi
+          if [ -f package-lock.json ]; then npm ci; else npm install; fi
 
       - name: Build (Angular)
         run: npm run build
-        # If you will serve under a sub-path like https://domain.com/app/
-        # use: npx ng build --base-href /app/
+        # If your site is under a sub-path like /app/, use:
+        # run: npx ng build --base-href /app/
 
-      - name: Ensure .htaccess (SPA)
+      - name: Ensure .htaccess (SPA routing)
         run: |
-          cat > "dist/myportfolio/.htaccess" << 'EOF'
+          cat > dist/myportfolio/.htaccess << 'EOF'
           Options -MultiViews
           RewriteEngine On
           RewriteBase /
@@ -50,20 +39,15 @@ jobs:
           RewriteRule . /index.html [L]
           EOF
 
-      - name: Deploy via SFTP
+      - name: Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          protocol: sftp
-          server: ${{ secrets.SFTP_SERVER }}
-          username: ${{ secrets.SFTP_USERNAME }}
-
-          # Choose ONE auth method:
-          password: ${{ secrets.SFTP_PASSWORD }}
-          # privateKey: ${{ secrets.SFTP_PRIVATE_KEY }}   # (use this instead of password if you prefer)
-
-          port: 22
-          local-dir: dist/myportfolio/      # build output
-          server-dir: /public_html/         # Hostinger document root
+          protocol: ftp                 # change to ftp or ftps-legacy if needed
+          server:   ${{ secrets.DEPLOY_SERVER }}
+          username: ${{ secrets.DEPLOY_USERNAME }}
+          password: ${{ secrets.DEPLOY_PASSWORD }}
+          local-dir:  dist/myportfolio/  # <-- hardcoded build output
+          server-dir: /public_html/      # <-- hardcoded Hostinger document root
           dangerous-clean-slate: true
           exclude: |
             **/*.map
