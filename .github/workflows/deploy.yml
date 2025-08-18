@@ -2,7 +2,7 @@ name: deploy-angular-to-hostinger-sftp
 
 on:
   push:
-    branches: [ main ]      # change if your main branch is different
+    branches: [ main ]        # change if your default branch is different
   workflow_dispatch:
 
 permissions:
@@ -12,14 +12,6 @@ concurrency:
   group: hostinger-sftp-deploy
   cancel-in-progress: true
 
-env:
-  # If your Angular project is in a subfolder, set it here (e.g., "myportfolio")
-  WORKDIR: ""
-  # Remote directory on Hostinger (common doc root for primary domain)
-  REMOTE_DIR: /public_html/
-  # If your site is served from a sub-path (e.g., https://domain.com/app/), set: /app/
-  BASE_HREF: ""
-
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -27,12 +19,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      # Move into subfolder if needed
-      - name: Use working directory
-        if: ${{ env.WORKDIR != '' }}
-        run: echo "Using working directory: $WORKDIR"
-        working-directory: ${{ env.WORKDIR }}
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -46,33 +32,15 @@ jobs:
           else
             npm install
           fi
-        working-directory: ${{ env.WORKDIR != '' && env.WORKDIR || '.' }}
 
       - name: Build (Angular)
-        run: |
-          if [ -n "$BASE_HREF" ]; then
-            npx ng build --base-href "$BASE_HREF"
-          else
-            npm run build
-          fi
-        working-directory: ${{ env.WORKDIR != '' && env.WORKDIR || '.' }}
+        run: npm run build
+        # If you will serve under a sub-path like https://domain.com/app/
+        # use: npx ng build --base-href /app/
 
-      # Find dist/<app-name> or fallback to dist
-      - name: Resolve dist folder
-        id: dist
-        run: |
-          cd "${WORKDIR:-.}"
-          BUILD_DIR="$(ls -d dist/*/ 2>/dev/null | head -n 1)"
-          BUILD_DIR="${BUILD_DIR%/}"
-          [ -z "$BUILD_DIR" ] && BUILD_DIR="dist"
-          echo "BUILD_DIR=$BUILD_DIR" >> $GITHUB_ENV
-          echo "Resolved build directory: $BUILD_DIR"
-
-      # Add SPA fallback so deep links work on Apache/Hostinger
       - name: Ensure .htaccess (SPA)
         run: |
-          OUT_DIR="${WORKDIR:+$WORKDIR/}${BUILD_DIR}"
-          cat > "$OUT_DIR/.htaccess" << 'EOF'
+          cat > "dist/myportfolio/.htaccess" << 'EOF'
           Options -MultiViews
           RewriteEngine On
           RewriteBase /
@@ -82,7 +50,6 @@ jobs:
           RewriteRule . /index.html [L]
           EOF
 
-      # ---- SFTP DEPLOY ----
       - name: Deploy via SFTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
@@ -90,25 +57,14 @@ jobs:
           server: ${{ secrets.SFTP_SERVER }}
           username: ${{ secrets.SFTP_USERNAME }}
 
-          # Use ONE of these auth methods:
-          # 1) Password auth:
+          # Choose ONE auth method:
           password: ${{ secrets.SFTP_PASSWORD }}
-          # 2) Or SSH key auth (uncomment & remove 'password' above):
-          # privateKey: ${{ secrets.SFTP_PRIVATE_KEY }}
+          # privateKey: ${{ secrets.SFTP_PRIVATE_KEY }}   # (use this instead of password if you prefer)
 
-          # Optional, default 22:
-          port: ${{ secrets.SFTP_PORT || 22 }}
-
-          # Local build output (resolved above)
-          local-dir: ${{ env.WORKDIR != '' && format('{0}/{1}/', env.WORKDIR, env.BUILD_DIR) || format('{0}/', env.BUILD_DIR) }}
-
-          # Remote doc root
-          server-dir: ${{ env.REMOTE_DIR }}
-
-          # Cleans remote files not present locally (careful: this wipes old files)
+          port: 22
+          local-dir: dist/myportfolio/      # build output
+          server-dir: /public_html/         # Hostinger document root
           dangerous-clean-slate: true
-
-          # Skip unnecessary files
           exclude: |
             **/*.map
             **/node_modules/**
