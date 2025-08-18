@@ -2,11 +2,11 @@ name: build-and-deploy-angular-to-hostinger
 
 on:
   push:
-    branches: [ main ]    # change if your primary branch is different
+    branches: [ main ]     # change if you use a different default branch
   workflow_dispatch:
 
 permissions:
-  contents: write         # needed to push to the deploy branch
+  contents: write
 
 concurrency:
   group: hostinger-deploy
@@ -20,21 +20,36 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Use Node.js 20
+      # Setup Node with cache only if an npm lock file exists
+      - name: Setup Node (with npm cache)
+        if: ${{ hashFiles('**/package-lock.json') != '' }}
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
+          cache-dependency-path: package-lock.json
 
-      - name: Install deps
-        run: npm ci
+      - name: Setup Node (no cache)
+        if: ${{ hashFiles('**/package-lock.json') == '' }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
 
-      # Build your Angular app (uses production by default if your angular.json
-      # has defaultConfiguration: "production")
+      # Install deps: prefer reproducible 'ci' if lock exists, else fallback to 'install'
+      - name: Install dependencies
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            echo "No package-lock.json found; using 'npm install'. Consider committing a lock file for reproducible builds."
+            npm install
+          fi
+
+      # Build Angular (uses production by default if your angular.json defaultConfiguration=production)
       - name: Build
         run: npm run build
 
-      # Detect the actual dist folder name (e.g., dist/myportfolio)
+      # Resolve the dist folder (e.g., dist/myportfolio). Change this if you know it exactly.
       - name: Resolve dist folder
         id: dist
         run: |
@@ -47,7 +62,7 @@ jobs:
           echo "BUILD_DIR=$BUILD_DIR" >> "$GITHUB_ENV"
           echo "folder=$BUILD_DIR" >> "$GITHUB_OUTPUT"
 
-      # Add SPA .htaccess so deep links work on Apache/Hostinger
+      # Add SPA rewrite so deep links work on Hostinger/Apache
       - name: Add .htaccess SPA rewrite
         run: |
           cat > "${{ env.BUILD_DIR }}/.htaccess" << 'EOF'
@@ -55,19 +70,17 @@ jobs:
           RewriteEngine On
           RewriteBase /
 
-          # Serve existing files/directories
           RewriteCond %{REQUEST_FILENAME} -f [OR]
           RewriteCond %{REQUEST_FILENAME} -d
           RewriteRule ^ - [L]
 
-          # Fallback to index.html (SPA)
           RewriteRule . /index.html [L]
           EOF
 
-      # Push ONLY the built files to the deploy branch root
+      # Push only built files to 'deploy' branch (Hostinger auto-pulls that branch to /public_html)
       - name: Publish to deploy branch
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          branch: deploy              # Hostinger pulls this branch
-          folder: ${{ env.BUILD_DIR }}  # e.g., dist/myportfolio
-          clean: true                 # remove old files
+          branch: deploy
+          folder: ${{ env.BUILD_DIR }}
+          clean: true
