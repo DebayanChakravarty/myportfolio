@@ -13,6 +13,7 @@ import { ExperienceModule } from './features/experience/experience.module';
 import { ProjectsModule } from './features/projects/projects.module';
 import { ContactModule } from './features/contact/contact.module';
 import { SkillsModule } from './features/skills/skills.module';
+import { AwardsCerticationComponent } from './features/awards-certication/awards-certication.component';
 
 @NgModule({
   declarations: [AppComponent, HeaderComponent, FooterComponent],
@@ -20,7 +21,8 @@ import { SkillsModule } from './features/skills/skills.module';
     BrowserModule,
     SharedModule,
     HomeModule, AboutModule, ExperienceModule, ProjectsModule, ContactModule,
-    SkillsModule
+    SkillsModule,
+    AwardsCerticationComponent
   ],
   bootstrap: [AppComponent]
 })

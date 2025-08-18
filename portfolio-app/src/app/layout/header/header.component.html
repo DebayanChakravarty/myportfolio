@@ -17,6 +17,10 @@
         Skills
         <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-400 transition-all duration-300 group-hover:w-full"></span>
       </a>
+      <a appAnchorScroll="awards" href="#awards" class="nav-link hover:text-blue-400 relative group">
+        Awards
+        <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-400 transition-all duration-300 group-hover:w-full"></span>
+      </a>
       <a appAnchorScroll="projects" href="#projects" class="nav-link hover:text-blue-400 relative group">Projects
         <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-400 transition-all duration-300 group-hover:w-full"></span>
       </a>
@@ -38,10 +42,11 @@
       <button (click)="closeMenu()" class="mb-6" aria-label="Close menu">✕</button>
       <ul class="space-y-4">
         <li><a appAnchorScroll="home" href="#home" (click)="closeMenu()" class="block py-2">Home</a></li>
-        <li><a appAnchorScroll="projects" href="#projects" (click)="closeMenu()" class="block py-2">Projects</a></li>
         <li><a appAnchorScroll="about" href="#about" (click)="closeMenu()" class="block py-2">About</a></li>
         <li><a appAnchorScroll="work" href="#work" (click)="closeMenu()" class="block py-2">Experience</a></li>
         <li><a appAnchorScroll="skills" href="#skills" (click)="closeMenu()" class="block py-2">Skills</a></li>
+        <li><a appAnchorScroll="awards" href="#awards" (click)="closeMenu()" class="block py-2">Awards</a></li>
+        <li><a appAnchorScroll="projects" href="#projects" (click)="closeMenu()" class="block py-2">Projects</a></li>
         <li><a appAnchorScroll="contact" href="#contact" (click)="closeMenu()" class="block py-2">Contact</a></li>
       </ul>
     </div>
