@@ -1,57 +1,78 @@
-name: build-and-deploy-angular-to-hostinger
+name: deploy-angular-to-hostinger-sftp
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main ]      # change if your main branch is different
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
-  group: hostinger-deploy
+  group: hostinger-sftp-deploy
   cancel-in-progress: true
 
-# If your Angular app is in a subfolder, uncomment and set it:
-# defaults:
-#   run:
-#     working-directory: myportfolio
+env:
+  # If your Angular project is in a subfolder, set it here (e.g., "myportfolio")
+  WORKDIR: ""
+  # Remote directory on Hostinger (common doc root for primary domain)
+  REMOTE_DIR: /public_html/
+  # If your site is served from a sub-path (e.g., https://domain.com/app/), set: /app/
+  BASE_HREF: ""
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node (no cache)
+      # Move into subfolder if needed
+      - name: Use working directory
+        if: ${{ env.WORKDIR != '' }}
+        run: echo "Using working directory: $WORKDIR"
+        working-directory: ${{ env.WORKDIR }}
+
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Install deps
+      - name: Install dependencies
         run: |
           if [ -f package-lock.json ]; then
             npm ci
           else
             npm install
           fi
+        working-directory: ${{ env.WORKDIR != '' && env.WORKDIR || '.' }}
 
-      - name: Build
-        run: npm run build
+      - name: Build (Angular)
+        run: |
+          if [ -n "$BASE_HREF" ]; then
+            npx ng build --base-href "$BASE_HREF"
+          else
+            npm run build
+          fi
+        working-directory: ${{ env.WORKDIR != '' && env.WORKDIR || '.' }}
 
+      # Find dist/<app-name> or fallback to dist
       - name: Resolve dist folder
         id: dist
         run: |
+          cd "${WORKDIR:-.}"
           BUILD_DIR="$(ls -d dist/*/ 2>/dev/null | head -n 1)"
           BUILD_DIR="${BUILD_DIR%/}"
           [ -z "$BUILD_DIR" ] && BUILD_DIR="dist"
           echo "BUILD_DIR=$BUILD_DIR" >> $GITHUB_ENV
-          echo "Resolved: $BUILD_DIR"
+          echo "Resolved build directory: $BUILD_DIR"
 
-      - name: Add .htaccess (SPA)
+      # Add SPA fallback so deep links work on Apache/Hostinger
+      - name: Ensure .htaccess (SPA)
         run: |
-          cat > "${{ env.BUILD_DIR }}/.htaccess" << 'EOF'
+          OUT_DIR="${WORKDIR:+$WORKDIR/}${BUILD_DIR}"
+          cat > "$OUT_DIR/.htaccess" << 'EOF'
           Options -MultiViews
           RewriteEngine On
           RewriteBase /
@@ -61,15 +82,35 @@ jobs:
           RewriteRule . /index.html [L]
           EOF
 
-      - name: Publish dist to deploy branch
-        uses: JamesIves/github-pages-deploy-action@v4
+      # ---- SFTP DEPLOY ----
+      - name: Deploy via SFTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          branch: deploy
-          folder: ${{ env.BUILD_DIR }}
-          clean: true
+          protocol: sftp
+          server: ${{ secrets.SFTP_SERVER }}
+          username: ${{ secrets.SFTP_USERNAME }}
 
-      - name: Trigger Hostinger auto-deploy webhook
-        run: |
-          curl -fsS -X POST "$HOSTINGER_WEBHOOK_URL" || curl -fsS "$HOSTINGER_WEBHOOK_URL" || true
-        env:
-          HOSTINGER_WEBHOOK_URL: ${{ secrets.HOSTINGER_WEBHOOK_URL }}
+          # Use ONE of these auth methods:
+          # 1) Password auth:
+          password: ${{ secrets.SFTP_PASSWORD }}
+          # 2) Or SSH key auth (uncomment & remove 'password' above):
+          # privateKey: ${{ secrets.SFTP_PRIVATE_KEY }}
+
+          # Optional, default 22:
+          port: ${{ secrets.SFTP_PORT || 22 }}
+
+          # Local build output (resolved above)
+          local-dir: ${{ env.WORKDIR != '' && format('{0}/{1}/', env.WORKDIR, env.BUILD_DIR) || format('{0}/', env.BUILD_DIR) }}
+
+          # Remote doc root
+          server-dir: ${{ env.REMOTE_DIR }}
+
+          # Cleans remote files not present locally (careful: this wipes old files)
+          dangerous-clean-slate: true
+
+          # Skip unnecessary files
+          exclude: |
+            **/*.map
+            **/node_modules/**
+            **/.git**
+            **/.DS_Store
