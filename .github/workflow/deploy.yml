@@ -1,0 +1,73 @@
+name: build-and-deploy-angular-to-hostinger
+
+on:
+  push:
+    branches: [ main ]    # change if your primary branch is different
+  workflow_dispatch:
+
+permissions:
+  contents: write         # needed to push to the deploy branch
+
+concurrency:
+  group: hostinger-deploy
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install deps
+        run: npm ci
+
+      # Build your Angular app (uses production by default if your angular.json
+      # has defaultConfiguration: "production")
+      - name: Build
+        run: npm run build
+
+      # Detect the actual dist folder name (e.g., dist/myportfolio)
+      - name: Resolve dist folder
+        id: dist
+        run: |
+          BUILD_DIR="$(ls -d dist/*/ 2>/dev/null | head -n 1)"
+          BUILD_DIR="${BUILD_DIR%/}"
+          if [ -z "$BUILD_DIR" ]; then
+            echo "No dist subfolder found; using dist"
+            BUILD_DIR="dist"
+          fi
+          echo "BUILD_DIR=$BUILD_DIR" >> "$GITHUB_ENV"
+          echo "folder=$BUILD_DIR" >> "$GITHUB_OUTPUT"
+
+      # Add SPA .htaccess so deep links work on Apache/Hostinger
+      - name: Add .htaccess SPA rewrite
+        run: |
+          cat > "${{ env.BUILD_DIR }}/.htaccess" << 'EOF'
+          Options -MultiViews
+          RewriteEngine On
+          RewriteBase /
+
+          # Serve existing files/directories
+          RewriteCond %{REQUEST_FILENAME} -f [OR]
+          RewriteCond %{REQUEST_FILENAME} -d
+          RewriteRule ^ - [L]
+
+          # Fallback to index.html (SPA)
+          RewriteRule . /index.html [L]
+          EOF
+
+      # Push ONLY the built files to the deploy branch root
+      - name: Publish to deploy branch
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: deploy              # Hostinger pulls this branch
+          folder: ${{ env.BUILD_DIR }}  # e.g., dist/myportfolio
+          clean: true                 # remove old files
