@@ -31,3 +31,10 @@
   }
 }
 
+#mobile-menu {
+  height: 100svh; width: min(85vw, 360px);
+  background: #181818; box-shadow: -6px 0 24px rgba(255, 255, 255, 0.2);
+  z-index: 1000;
+  overflow-y: auto; -webkit-overflow-scrolling: touch;
+}
+
