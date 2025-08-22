@@ -5,5 +5,5 @@ import { Component } from '@angular/core';
   templateUrl: './contact.component.html'
 })
 export class ContactComponent {
-  email = "debayanchakravarty@gmail.com";
+  email = "debayanchakravarty@gmail";
 }
